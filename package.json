@@ -13,6 +13,7 @@
     "dotenv-webpack": "^1.7.0",
     "install": "^0.13.0",
     "ipfs": "^0.63.2",
+    "ipfs-core": "^0.15.1",
     "ipfs-http-client": "^57.0.1",
     "libp2p-webrtc-star": "^0.25.0",
     "nft.storage": "^6.3.0",
@@ -23,10 +24,14 @@
     "web-vitals": "^2.1.4",
     "web3.storage": "^4.2.0"
   },
+  "keywords": [
+    "ipfs",
+    "ipfs-http-client"
+  ],
   "browser": {
-    "fs": false,
-    "path": false,
-    "os": false
+    "fs": true,
+    "path": true,
+    "os": true
   },
   "scripts": {
     "start": "react-scripts start",
