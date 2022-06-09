@@ -7,9 +7,9 @@ import mintNFT from './utils/mintNFT.json';
 import { Web3Storage } from 'web3.storage'
 import { getFilesFromPath } from 'web3.storage'
 import  { Buffer }  from "buffer";
-import { create, urlSource } from 'ipfs-http-client';
-//import { IPFS } from 'ipfs'
-//const IPFS = require('ipfs');
+import { create, urlSource, IpfsHttpClient } from 'ipfs-http-client';
+import * as IPFS from 'ipfs-core'
+//const ipfsClient = require('ipfs-http-client');
 
 const axios = require('axios').default;
 const TWITTER_HANDLE = 'borde_dheeraj';
@@ -25,7 +25,8 @@ function App() {
 	//const[fileObj, setFileObj] = useState('');
 	const { currentAccount, setCurrentAccount } = useState('');
 
-	
+	const url = 'https://dweb.link/api/v0';
+	const ipfs = create({ url });
 
 	function getAccessToken () {
 	return 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweEFDQzI4ZjM2MUY1MEYwMDRkMDhlQzQ5NjA3OGUyNkY2MjkzMzc1QjMiLCJpc3MiOiJ3ZWIzLXN0b3JhZ2UiLCJpYXQiOjE2NTQxNjUwNjM2MjcsIm5hbWUiOiJuZnRTdG9yYWdlIn0.tahXtWJGHQfsguCH7VMFc-zaNH_9JMQlMsUi1HgemW0'
@@ -97,9 +98,9 @@ function App() {
 		//const ipfsImageLink = await getLinks(contentCID)
 		//const fileObj = await makeJsonFileObjects(ipfsImageLink);
 
-		const ipfs = await create();
-		const file = await ipfs.add(urlSource('https://ipfs.io/images/ipfs-logo.svg'))
-		console.log(file)
+		//const url = 'https://ipfs.io';
+		const ipfs = create();
+
 
 		const fileObj = await makeJsonFileObjectsProfile();
 		console.log(fileObj)
@@ -107,6 +108,15 @@ function App() {
 		const cid = await client.put(fileObj, {name: 'profileJson'})
 		console.log('stored files with cid:', cid)
 		setnftJsonCID(cid);
+
+		const addr = '/ipfs/${cid}'
+
+		// await ipfs.name.publish(addr).then(function (res) {
+		// // You now receive a res which contains two fields:
+		// //   - name: the name under which the content was published.
+		// //   - value: the "real" address to which Name points.
+		// console.log(`https://gateway.ipfs.io/ipns/${res.name}`)
+		// })
 
 		return cid
 	}
@@ -129,9 +139,39 @@ function App() {
 		setContentCID('');
 	}
 
+	async function addContent(ipfsPath) {
+
+		const ipfs = await IPFS.create()
+		//const ipfs = window.IpfsHttpClient()
+		const { cid } = await ipfs.add('Hello world')
+		console.log(cid);
+		const files = [];
+		//const getCon = await ipfs.get(ipfsPath)
+		for await (const buf of ipfs.get(ipfsPath)) {
+			// do something with buf
+			files.push(buf);
+		  }
+		console.log(files)
+		console.log( ipfs.cat(ipfsPath))
+		const addr = '/ipfs/${ipfsPath}'
+
+		
+	
+		// const name = await  ipfs.name.publish(addr);
+		// console.log(name);
+		// ipfs.name.publish(addr).then(function (res) {
+		// // You now receive a res which contains two fields:
+		// //   - name: the name under which the content was published.
+		// //   - value: the "real" address to which Name points.
+		// console.log(`https://gateway.ipfs.io/ipns/${res.name}`)
+		// })
+
+		//return linkImageMeta;
+	}
+
 	async function getLinks(ipfsPath) {
-		const url = 'https://dweb.link/api/v0';
-		const ipfs = create({ url });
+		// const url = 'https://dweb.link/api/v0';
+		// const ipfs = create({ url });
 	
 		const links = [];
 		for await (const link of ipfs.ls(ipfsPath)) {
@@ -292,8 +332,8 @@ It may be blank right now. It can take a max of 10 min to show up on OpenSea. He
 					<button  className="cta-button-collection nft-collection-button" onClick={() => getLinks(nftJsonCID)}>
 							Queryfiles
 						</button>
-						<button onClick={()=>retrieveFiles(nftJsonCID)} className="cta-button mint-button ">
-							Retrive
+						<button onClick={()=>addContent(nftJsonCID)} className="cta-button mint-button ">
+							GEtFiles
 						</button>
 					</div>
 					}
